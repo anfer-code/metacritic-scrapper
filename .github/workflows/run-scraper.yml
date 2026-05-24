@@ -1,0 +1,38 @@
+name: Metacritic Automated Scraper
+
+on:
+  # 1. Automatización por tiempo (Cron Job)
+  schedule:
+    # Esto corre todos los días a las 12:00 AM UTC (puedes cambiar la hora si quieres)
+    - cron: '0 0 * * *'
+  
+  # 2. Permite activar el scraper manualmente con un botón desde la web de GitHub
+  workflow_dispatch:
+
+jobs:
+  scrape-and-update:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Paso 1: Baja el código de tu repositorio a la máquina virtual
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      # Paso 2: Instala Node.js en la máquina virtual
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.19.0' # Usa la misma versión de Node que tengas local
+
+      # Paso 3: Instala tus dependencias de forma limpia (axios, cheerio, supabase, etc.)
+      - name: Instalar dependencias
+        run: npm ci
+
+      # Paso 4: Ejecuta tu script de scraping
+      # (Asegúrate de que en tu package.json tengas un script llamado "start" o "build" que corra tu código)
+      - name: Ejecutar Scraper
+        run: npm start
+        env:
+          # Aquí le pasamos las llaves secretas de forma segura al entorno virtual
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
