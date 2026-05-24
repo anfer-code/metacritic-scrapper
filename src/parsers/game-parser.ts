@@ -1,14 +1,8 @@
 import { load, type Cheerio } from "cheerio";
 import type { Element } from "domhandler";
-import { normalizeText } from "./normalize-text.ts";
-import { BASE_URL } from "../../config/index.ts";
-
-export interface CardGameInfo {
-  title: string;
-  url: string;
-  score: string;
-  image: string;
-}
+import { normalizeText } from "../utils/normalize-text.ts";
+import { BASE_URL } from "../config/index.ts";
+import type { CardGameInfo } from "../interfaces/card-game-info.ts";
 
 const cleanTitle = (value: string): string =>
   normalizeText(value).replace(/^\d+\.\s*/, "");
@@ -23,22 +17,26 @@ const getAbsoluteUrl = (href: string): string => {
 
 const extractScore = (element: Cheerio<Element>): string => {
   const score = element.find(".c-siteReviewScore span").first().text();
-  if (!score) return "";
+
+  if (!score) {
+    return "";
+  }
 
   return normalizeText(score);
 };
 
-export const getCardGameInfo = (body: string): CardGameInfo[] => {
+export const parseGameCards = (body: string): CardGameInfo[] => {
   const $ = load(body);
 
   return $("[data-testid='filter-results']")
     .toArray()
     .map((element) => {
       const card = $(element);
+      const titleElement = card.find("[data-testid='product-title']").first();
+      const releaseDateElement = titleElement.parent().next();
+      const releaseDateText = releaseDateElement.text().split("•")[0];
 
-      const title = cleanTitle(
-        card.find("[data-testid='product-title']").first().text(),
-      );
+      const title = cleanTitle(titleElement.text());
       const href = card.find("a[href]").first().attr("href") ?? "";
       const image =
         card.find("[data-testid='product-image'] img").first().attr("src") ??
@@ -50,10 +48,11 @@ export const getCardGameInfo = (body: string): CardGameInfo[] => {
         title,
         url: getAbsoluteUrl(href),
         score,
-        image,
+        thumbnail: image,
+        release_date: releaseDateText ?? '',
       };
     })
     .filter((card) =>
-      Boolean(card.title || card.url || card.score || card.image),
+      Boolean(card.title || card.url || card.score || card.thumbnail || card.release_date),
     );
 };

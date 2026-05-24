@@ -1,9 +1,8 @@
-import { GetAllGames } from "../repositories/get-all-games.ts";
-import { BASE_URL } from "../../config/index.ts";
+import { MetacriticGamesRepository } from "../repositories/metacritic-games-repository.ts";
 
-export const getAllGamesData = async () => {
-  const data = await GetAllGames.execute({
-    url: `${BASE_URL}/browse/game/`,
+export const getAllGamesData = async (url: string) => {
+  const data = await MetacriticGamesRepository.execute({
+    url,
   });
   return data;
 };

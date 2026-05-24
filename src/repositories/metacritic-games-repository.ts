@@ -1,7 +1,7 @@
 import type { AxiosRequestConfig } from "axios";
 import { HttpClient } from "../core/http-client.ts";
 
-export class GetAllGames {
+export class MetacriticGamesRepository {
   static async execute({
     url,
     headers,
@@ -17,7 +17,7 @@ export class GetAllGames {
       "Accept-Language": "es-ES,es;q=0.9,en;q=0.8",
       ...headers,
     };
-    
+
     try {
       const client = new HttpClient({ headers: defaultHeaders });
       const html = await client.get<string>(url);
