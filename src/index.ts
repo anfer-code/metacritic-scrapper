@@ -1,4 +1,4 @@
-import { collectAllGames } from "./src/app/index.ts";
+import { collectAllGames } from "./app/index.ts";
 
 async function main(): Promise<void> {
   await collectAllGames();
